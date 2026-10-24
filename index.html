@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- viewport-fit=cover lets the app use the whole phone screen, including around the notch -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Calorie Counter</title>
+  <meta name="description" content="Rough, fast calorie tracking against a daily goal.">
+  <meta name="theme-color" content="#F5F3EE">
+
+  <!-- These make the app installable on the home screen (a "PWA") -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Calories">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ============ SCREEN 1: TODAY ============ -->
+  <main id="screen-today" class="screen">
+    <header class="screen-header">
+      <h1>Today</h1>
+      <p class="header-note" id="today-date"></p>
+    </header>
+
+    <!-- The big "calories left" card. JavaScript adds the class "is-over" when you pass your goal. -->
+    <section class="summary-card" id="today-card" aria-live="polite">
+      <div class="summary-card-top">
+        <h2 class="summary-label" id="today-label">Calories left today</h2>
+        <span class="summary-icon" id="today-icon" aria-hidden="true"></span>
+      </div>
+      <p class="big-number">
+        <span id="today-remaining">0</span>
+        <span class="big-unit">kcal</span>
+      </p>
+      <p class="eaten-line" id="today-eaten"></p>
+      <div class="progress" aria-hidden="true"><div class="progress-fill" id="today-progress"></div></div>
+      <p class="summary-subline" id="today-subline"></p>
+    </section>
+
+    <section class="meals">
+      <div class="section-heading">
+        <h2>Your meals</h2>
+        <p class="header-note" id="meal-count"></p>
+      </div>
+      <ul class="meal-list" id="meal-list"></ul>
+      <p class="small-note" id="meal-hint">Tap to edit kcal or meal type · bin to delete</p>
+    </section>
+
+    <button class="primary-button log-button" id="open-log" type="button">
+      <span class="icon" data-icon="plus"></span> Log a meal
+    </button>
+  </main>
+
+  <!-- ============ SCREEN 2: HISTORY ============ -->
+  <main id="screen-history" class="screen" hidden>
+    <header class="screen-header">
+      <h1>History</h1>
+      <p class="header-note">Recent days</p>
+    </header>
+
+    <section class="summary-card summary-card--compact">
+      <div class="summary-card-top">
+        <h2 class="summary-label summary-label--caps">Last 7 full days</h2>
+        <p class="summary-range" id="week-range"></p>
+      </div>
+      <div class="week-stats">
+        <div>
+          <p class="stat-number" id="week-average">—</p>
+          <p class="stat-label">avg. kcal / day</p>
+        </div>
+        <div>
+          <p class="stat-number" id="week-under">—</p>
+          <p class="stat-label">at or below goal</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="history">
+      <div class="section-heading">
+        <h2>Daily totals</h2>
+        <p class="header-note" id="history-goal"></p>
+      </div>
+      <ul class="history-list" id="history-list"></ul>
+      <p class="small-note" id="history-hint"><span class="tick-sample"></span> Tick = daily goal · all values are estimates</p>
+    </section>
+  </main>
+
+  <!-- ============ SCREEN 3: SETTINGS ============ -->
+  <main id="screen-settings" class="screen" hidden>
+    <header class="screen-header">
+      <h1>Settings</h1>
+      <p class="header-note">Just for you</p>
+    </header>
+
+    <form class="card goal-card" id="goal-form" novalidate>
+      <h2>Daily calorie goal</h2>
+      <p class="muted">A simple target for your day. You can change it whenever you need.</p>
+      <label class="goal-field">
+        <span class="visually-hidden">Daily goal in kcal</span>
+        <input id="goal-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="6">
+        <span class="goal-unit">kcal / day</span>
+        <span class="icon goal-pencil" data-icon="pencil" aria-hidden="true"></span>
+      </label>
+      <p class="field-error" id="goal-error" hidden></p>
+      <button class="primary-button" type="submit">
+        <span class="icon" data-icon="check"></span> Save goal
+      </button>
+      <p class="muted">Applies to today and future days. Past days keep the goal they were logged with.</p>
+    </form>
+
+    <section class="card card--green">
+      <h2 class="with-icon"><span class="icon" data-icon="phone" aria-hidden="true"></span> Only on this phone</h2>
+      <p>No account. No cloud. Your meals and history stay on this device, just for you.</p>
+    </section>
+
+    <p class="note-with-icon muted">
+      <span class="icon" data-icon="moon" aria-hidden="true"></span>
+      A fresh day starts at midnight, using your phone’s local time.
+    </p>
+
+    <p class="tagline">Less tracking. More living.</p>
+  </main>
+
+  <!-- ============ BOTTOM TAB BAR ============ -->
+  <nav class="tab-bar" aria-label="Main">
+    <a href="#today" class="tab" data-screen="today"><span class="icon" data-icon="gauge"></span>Today</a>
+    <a href="#history" class="tab" data-screen="history"><span class="icon" data-icon="chart"></span>History</a>
+    <a href="#settings" class="tab" data-screen="settings"><span class="icon" data-icon="sliders"></span>Settings</a>
+  </nav>
+
+  <!-- ============ "LOG A MEAL" BOTTOM SHEET ============ -->
+  <!-- Used both for adding a new meal and for editing an existing one -->
+  <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
+  <form class="sheet" id="log-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden novalidate>
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="sheet-header">
+      <h2 id="sheet-title">Log a meal</h2>
+      <button type="button" class="close-button" id="close-sheet" aria-label="Close">
+        <span class="icon" data-icon="close"></span>
+      </button>
+    </div>
+
+    <label class="field-label" for="kcal-input">About how many calories?</label>
+    <div class="kcal-field">
+      <input id="kcal-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="4" placeholder="0">
+      <span class="kcal-unit">kcal</span>
+    </div>
+    <p class="small-note" id="kcal-note">Your best guess is enough.</p>
+
+    <p class="field-label" id="meal-type-label">Meal type</p>
+    <div class="meal-types" role="radiogroup" aria-labelledby="meal-type-label" id="meal-types">
+      <button type="button" role="radio" data-meal="Breakfast">Breakfast</button>
+      <button type="button" role="radio" data-meal="Lunch">Lunch</button>
+      <button type="button" role="radio" data-meal="Dinner">Dinner</button>
+      <button type="button" role="radio" data-meal="Snack">Snack</button>
+    </div>
+
+    <button class="primary-button" type="submit" id="save-meal">
+      <span class="icon" data-icon="plus"></span> <span id="save-meal-text">Add kcal</span>
+    </button>
+    <p class="small-note" id="sheet-footer"></p>
+  </form>
+
+  <!-- Small message bar, e.g. "Meal deleted · Undo" -->
+  <div class="toast" id="toast" role="status" hidden>
+    <span id="toast-text"></span>
+    <button type="button" id="toast-action" hidden>Undo</button>
+  </div>
+
+  <!-- The order matters: icons and data first, then the app that uses them -->
+  <script src="icons.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

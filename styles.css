@@ -1,0 +1,552 @@
+/* ---------------------------------------------------------------
+   styles.css — all the visual design.
+   Colours and sizes live in the variables below (":root"), so the
+   look can be adjusted in one place.
+   --------------------------------------------------------------- */
+
+/* The Work Sans font, stored in /fonts so it also works offline */
+@font-face {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('fonts/work-sans-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('fonts/work-sans-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  /* Colours (taken from the mockups) */
+  --bg: #F5F3EE;            /* page background, warm off-white */
+  --surface: #FCFBF8;       /* white-ish cards and tab bar */
+  --text: #1F3529;          /* dark green, almost black */
+  --muted: #6E7671;         /* secondary grey text */
+  --line: #E2DFD7;          /* dividers and borders */
+  --green: #3A7858;         /* main buttons, progress */
+  --green-soft: #E0EADD;    /* light green cards, selected states */
+  --green-text: #3A7858;
+  --brown: #8A6538;         /* "over goal" warning colour */
+  --brown-soft: #EFE5D5;    /* "over goal" card background */
+  --track: #D3DDCF;         /* empty part of progress bars */
+
+  /* Sizes */
+  --gutter: 24px;           /* space at the left and right of the screen */
+  --radius-card: 24px;
+  --radius-button: 18px;
+  --tab-bar-height: 72px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px); /* iPhone home-bar area */
+}
+
+/* ---------- Basics ---------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Work Sans', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, p { margin: 0; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+[hidden] { display: none !important; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.icon { display: inline-flex; width: 22px; height: 22px; flex: none; }
+.icon svg { width: 100%; height: 100%; }
+
+.muted { color: var(--muted); }
+.small-note { font-size: 12px; color: var(--muted); margin-top: 12px; }
+
+/* ---------- Screen layout ---------- */
+
+.screen {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 28px) var(--gutter)
+           calc(var(--tab-bar-height) + var(--safe-bottom) + 32px);
+  min-height: 100vh;
+}
+
+/* Today has the "Log a meal" button above the tab bar, so it needs more room at the bottom */
+#screen-today { padding-bottom: calc(var(--tab-bar-height) + var(--safe-bottom) + 110px); }
+
+.screen-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; }
+
+.header-note { font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 28px 0 10px;
+}
+.section-heading h2 { font-size: 20px; font-weight: 700; }
+
+/* ---------- Summary card (Today + History) ---------- */
+
+.summary-card {
+  background: var(--green-soft);
+  border-radius: var(--radius-card);
+  padding: 18px 20px 22px;
+}
+
+.summary-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.summary-label { font-size: 14px; font-weight: 600; color: var(--green-text); }
+.summary-label--caps { font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; }
+.summary-icon { width: 22px; height: 22px; color: var(--green-text); }
+.summary-range { font-size: 12px; color: var(--green-text); }
+
+.big-number {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 6px 0 8px;
+}
+#today-remaining {
+  font-size: 68px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.big-unit { font-size: 16px; color: var(--muted); }
+
+.eaten-line { font-size: 14px; }
+
+.progress {
+  height: 6px;
+  background: var(--track);
+  border-radius: 3px;
+  margin: 8px 0 10px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--green);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.summary-subline { font-size: 12px; color: var(--green-text); }
+
+/* Over the goal: the card switches to the warm brown palette */
+.summary-card.is-over { background: var(--brown-soft); }
+.summary-card.is-over .summary-label,
+.summary-card.is-over .summary-icon,
+.summary-card.is-over .summary-subline { color: var(--brown); }
+.summary-card.is-over .progress { background: #E2D5C1; }
+.summary-card.is-over .progress-fill { background: var(--brown); }
+
+/* ---------- Meal list (Today) ---------- */
+
+.meal-list { list-style: none; margin: 0; padding: 0; }
+
+.meal-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* The left part of a row is one big button that opens "edit" */
+.meal-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 8px 0;
+  background: none;
+  border: 0;
+  text-align: left;
+}
+
+.meal-icon {
+  width: 34px;
+  height: 34px;
+  padding: 6px;
+  border-radius: 9px;
+  background: var(--green-soft);
+  color: var(--text);
+}
+
+.meal-text { flex: 1; min-width: 0; }
+.meal-name { display: block; font-size: 15px; font-weight: 600; }
+.meal-time { display: block; font-size: 11px; color: var(--muted); }
+.meal-kcal { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  border-radius: 10px;
+}
+.icon-button .icon { width: 19px; height: 19px; }
+.icon-button:active { background: var(--green-soft); }
+
+.empty-state {
+  padding: 18px 0;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+
+/* ---------- Buttons ---------- */
+
+.primary-button {
+  width: 100%;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--green);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.primary-button:active { transform: scale(0.98); }
+.primary-button:disabled { opacity: 0.45; transform: none; cursor: default; }
+.primary-button .icon { width: 20px; height: 20px; }
+
+/* "Log a meal" sits just above the tab bar */
+.log-button {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--tab-bar-height) + var(--safe-bottom) + 16px);
+  width: calc(min(100vw, 430px) - 2 * var(--gutter));
+  z-index: 5;
+}
+.log-button:active { transform: translateX(-50%) scale(0.98); }
+
+/* ---------- Tab bar ---------- */
+
+.tab-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px var(--gutter) calc(var(--safe-bottom) + 8px);
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.tab {
+  flex: 1;
+  max-width: 128px;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+}
+.tab .icon { width: 21px; height: 21px; }
+.tab.is-active { background: var(--green-soft); color: var(--text); font-weight: 600; }
+
+/* ---------- History ---------- */
+
+.summary-card--compact { padding: 20px 20px 22px; }
+
+.week-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+.stat-number { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat-label { font-size: 12px; color: var(--muted); }
+
+.history-list { list-style: none; margin: 0; padding: 0; }
+
+.history-row {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.history-day { font-size: 14px; font-weight: 600; line-height: 1.2; }
+.history-date { display: block; font-size: 11px; font-weight: 400; color: var(--muted); }
+
+.history-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.history-total { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.history-diff { font-size: 12px; color: var(--muted); }
+.history-row.is-over .history-diff { color: var(--brown); }
+
+/* The bar: a light track, a coloured fill, and a dark tick where the goal is */
+.bar {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: #E8E5DE;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--green);
+}
+.history-row.is-over .bar-fill { background: var(--brown); }
+.bar-tick {
+  position: absolute;
+  top: -2px;
+  width: 1.5px;
+  height: 10px;
+  background: var(--text);
+}
+
+.history-row.is-empty .history-total { font-size: 14px; font-weight: 400; color: var(--muted); }
+.history-row.is-empty .bar-fill { display: none; }
+
+.tick-sample {
+  display: inline-block;
+  width: 1.5px;
+  height: 10px;
+  background: var(--text);
+  vertical-align: -1px;
+  margin-right: 4px;
+}
+
+/* ---------- Settings ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 22px 20px;
+  margin-bottom: 16px;
+}
+.card h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.card .muted { font-size: 13px; }
+
+.card--green { background: var(--green-soft); border-color: transparent; }
+.card--green p { font-size: 14px; }
+
+.with-icon { display: flex; align-items: center; gap: 10px; }
+.with-icon .icon { color: var(--green-text); }
+
+.goal-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 16px;
+  padding: 0 16px;
+  height: 72px;
+  border: 1.5px solid var(--green);
+  border-radius: 18px;
+  background: var(--bg);
+}
+.goal-field input {
+  width: 4.2ch;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding: 0;
+}
+.goal-unit { flex: 1; font-size: 14px; color: var(--muted); white-space: nowrap; }
+.goal-pencil { color: var(--green-text); }
+.goal-field:focus-within { box-shadow: 0 0 0 3px var(--green-soft); }
+
+.goal-card .primary-button + .muted { margin-top: 14px; }
+
+.field-error { color: var(--brown); font-size: 13px; margin: -6px 0 14px; }
+
+.note-with-icon { display: flex; gap: 10px; font-size: 13px; padding: 4px 6px; }
+.note-with-icon .icon { width: 18px; height: 18px; }
+
+.tagline { text-align: center; font-size: 12px; color: var(--muted); margin-top: 120px; }
+
+/* ---------- "Log a meal" sheet ---------- */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(31, 53, 41, 0.35);
+  animation: fade-in 0.2s ease;
+}
+
+.sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  z-index: 21;
+  width: 100%;
+  max-width: 430px;
+  padding: 10px var(--gutter) calc(var(--safe-bottom) + 18px);
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  animation: slide-up 0.25s ease;
+}
+
+.sheet-handle {
+  width: 36px; height: 4px;
+  margin: 0 auto 14px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.sheet-header h2 { font-size: 20px; font-weight: 700; }
+
+.close-button {
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%;
+  background: #EEEBE4;
+  color: var(--text);
+}
+.close-button .icon { width: 18px; height: 18px; }
+
+.field-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+
+.kcal-field {
+  display: flex;
+  align-items: center;
+  height: 80px;
+  padding: 0 20px;
+  border: 1.5px solid var(--green);
+  border-radius: 18px;
+  background: var(--bg);
+}
+.kcal-field:focus-within { box-shadow: 0 0 0 3px var(--green-soft); }
+.kcal-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  padding: 0;
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  caret-color: var(--text);
+}
+.kcal-field input::placeholder { color: #C9C6BE; }
+.kcal-unit { font-size: 15px; color: var(--muted); }
+
+#kcal-note { margin: 8px 0 20px; }
+#kcal-note.is-error { color: var(--brown); }
+
+.meal-types {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.meal-types button {
+  height: 44px;
+  padding: 0 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #F1EFEA;
+  color: var(--muted);
+  font-size: 12px;
+}
+.meal-types button[aria-checked="true"] {
+  background: var(--green-soft);
+  border-color: var(--green);
+  color: var(--text);
+  font-weight: 600;
+}
+
+#sheet-footer { margin-top: 14px; }
+
+/* ---------- Toast (small message bar) ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--tab-bar-height) + var(--safe-bottom) + 84px);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 12px 10px 18px;
+  border-radius: 14px;
+  background: var(--text);
+  color: #fff;
+  font-size: 14px;
+  white-space: nowrap;
+  animation: fade-in 0.2s ease;
+}
+.toast button {
+  border: 0;
+  background: none;
+  color: #BFE0C9;
+  font-weight: 600;
+  padding: 4px 6px;
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes slide-up { from { transform: translate(-50%, 100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
